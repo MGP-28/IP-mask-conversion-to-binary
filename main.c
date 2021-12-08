@@ -57,26 +57,94 @@ void build_ruler(int *ruler){
   }
 }
 
+void separate_IP_octets_plus_mask(char *hold, int *ip1, int *ip2, int *ip3, int *ip4, int *subnet_size){
+
+  int counter=0;
+
+  while(hold[counter]!='.' && hold[counter]!=-1){
+    *ip1=*ip1*10;
+    *ip1+=hold[counter]-48;
+    printf("\n[%d]",*ip1);
+    counter++;
+  }
+  printf("\n");
+  counter++;
+
+  while(hold[counter]!='.' && hold[counter]!=-1){
+    *ip2=*ip2*10;
+    *ip2+=hold[counter]-48;
+    printf("\n[%d]",*ip2);
+    counter++;
+  }
+  printf("\n");
+  counter++;
+
+  while(hold[counter]!='.' && hold[counter]!=-1){
+    *ip3=*ip3*10;
+    *ip3+=hold[counter]-48;
+    printf("\n[%d]",*ip3);
+    counter++;
+  }
+  printf("\n");
+  counter++;
+
+  while(hold[counter]!='/' && hold[counter]!=-1){
+    *ip4=*ip4*10;
+    *ip4+=hold[counter]-48;
+    printf("\n[%d]",*ip4);
+    counter++;
+  }
+  printf("\n\n/");
+  counter++;
+
+  while(hold[counter]!='\n'){
+    *subnet_size=*subnet_size*10;
+    *subnet_size+=hold[counter]-48;
+    printf("\n[%d]",*subnet_size);
+    counter++;
+  }
+}
+
 int main(void) {
   //Create ruler for powers of 2 up until 255
   int ruler[8];
   build_ruler(ruler);
 
   //Read number
-  int ip1=-1, ip2=-1, ip3=-1, ip4=-1, subnet_size=-1, check=0;
+  int ip1, ip2, ip3, ip4, subnet_size, check;
+  
   do{
-    ip1=-1, ip2=-1, ip3=-1, ip4=-1, subnet_size=-1, check=0;
+    ip1=0, ip2=0, ip3=0, ip4=0, subnet_size=0, check=0;
     printf("\nWrite an IP and mask number in the format 0.0.0.0/0: \n\n>>> ");
-    scanf("%d.%d.%d.%d/%d",&ip1,&ip2,&ip3,&ip4,&subnet_size);
-    if(ip1<0 || ip2<0 || ip3<0 || ip4<0 || subnet_size<=0 || ip1>255 || ip2>255 || ip3>255 || ip4>255 || subnet_size>30){
-      int c;
-      while ((c = getchar()) != '\n' && c != EOF) { } //cleans STDIN to avoid endless loops
+
+    char hold[100];
+    fgets(hold, 100, stdin);
+
+    int counter1=0, counter=0;
+
+    for(int i=0;hold[i]!='\n';i++){
+      if(hold[i]=='.')
+        counter++;
+      else if(hold[i]=='/')
+        counter1++;
+    }
+
+    if(counter==3 && counter1==1){
+
+    separate_IP_octets_plus_mask(hold, &ip1, &ip2, &ip3, &ip4, &subnet_size);
+
+      if(ip1<0 || ip2<0 || ip3<0 || ip4<0 || subnet_size<=0 || ip1>255 || ip2>255 || ip3>255 || ip4>255 || subnet_size>30){
+        printf("\n----- Invalid! -----\n");
+        check=1;
+      }
+    }
+    else{
       printf("\n----- Invalid! -----\n");
       check=1;
     }
   }while(check==1);
 
-  printf("\n<< Binary >>\n-------- IP: ");
+  printf("\n\n<< Binary >>\n-------- IP: ");
 
   decimal_to_binary_print(ip1, ruler);
   printf(".");
